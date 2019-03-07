@@ -11,6 +11,8 @@ pub enum GithubError {
     JWTError { error: jsonwebtoken::errors::Error },
     #[fail(display = "Curl Error: {}", error)]
     CurlError { error: curl::Error },
+    #[fail(display = "A request was made without a token.")]
+    MissingToken,
     #[fail(display = "An unknown error has occurred.")]
     UnknownError,
 }
