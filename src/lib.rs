@@ -70,7 +70,6 @@ impl GithubApp {
     pub fn list_repos(&self, installation_id: usize) -> Result<Vec<Repo>, Error> {
         let installation_token = self.installation_token(installation_id)?;
         let data = self.get_with_token("https://api.github.com/installation/repositories", &installation_token.token)?;
-        println!("Data for repos: {}", String::from_utf8_lossy(&data));
         let mut result: RepoResult = serde_json::from_slice(&data)?;
         let repos = result.repositories.iter_mut().map(|repo| {repo.set_token(installation_token.clone()); repo.clone()});
         Ok(repos.collect())
@@ -108,7 +107,6 @@ fn easy_run<T1: AsRef<str>, T2: AsRef<str>>(url: T1, headers: Vec<T2>, method: M
     let dst = Arc::new(RwLock::new(Vec::with_capacity(8192)));
     let mut easy = Easy::new();
     let url = url.as_ref();
-    println!("Getting {}", url);
     easy.url(url)?;
 
     let mut list = List::new();
@@ -117,7 +115,6 @@ fn easy_run<T1: AsRef<str>, T2: AsRef<str>>(url: T1, headers: Vec<T2>, method: M
     };
     list.append(&format!("User-Agent: {}", USER_AGENT))?;
     list.append("Accept: application/vnd.github.machine-man-preview+json")?;
-    println!("Headers: {:?}", list);
     easy.http_headers(list)?;
     let inner_dst = dst.clone();
     easy.write_function(move |data| {

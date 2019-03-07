@@ -98,7 +98,6 @@ impl Repo {
             url = format!("{}&state=all", url);
         }
         let data = get(url, vec![format!("Authorization: token {}", token.token)])?;
-        println!("Data for pull requests: {}", String::from_utf8_lossy(&data));
         Ok(serde_json::from_slice(&data)?)
     }
 
