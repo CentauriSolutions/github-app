@@ -38,6 +38,7 @@ mod tests {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct GithubApp {
     json_web_token: JsonWebToken,
 }

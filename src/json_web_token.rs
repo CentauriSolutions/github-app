@@ -16,6 +16,7 @@ struct Claims {
     iss: String,
 }
 
+#[derive(Clone, Debug)]
 pub struct JsonWebToken {
     expires: Arc<RwLock<time::SystemTime>>,
     token: Arc<RwLock<String>>,
