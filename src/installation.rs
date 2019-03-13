@@ -2,7 +2,7 @@ use chrono::prelude::*;
 
 use crate::Account;
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Installation {
     pub id: usize,
     pub account: Account,
@@ -20,7 +20,7 @@ pub struct Installation {
     pub single_file_name: Option<String>,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Permissions {
     pub pull_requests: String, // Enum
     pub metadata: String, // Enum

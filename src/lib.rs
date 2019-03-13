@@ -42,7 +42,7 @@ pub struct GithubApp {
     json_web_token: JsonWebToken,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct InstallationToken {
     pub token: String,
     expires_at: DateTime<Utc>,

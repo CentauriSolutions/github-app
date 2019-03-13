@@ -4,7 +4,7 @@ use crate::{Account, InstallationToken, PullRequest, PullRequestState};
 use crate::error::GithubError;
 use chrono::prelude::*;
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Repo {
     pub id: usize,
     pub node_id: String,
@@ -106,14 +106,14 @@ impl Repo {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct RepoPermission {
     pub admin: bool,
     pub push: bool,
     pub pull: bool,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct RepoResult {
     pub total_count: usize,
     pub repository_selection: String,

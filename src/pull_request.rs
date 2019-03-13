@@ -1,7 +1,7 @@
 use crate::{Account, Repo};
 use chrono::prelude::*;
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct PullRequest {
     pub user: Account,
     pub head: Ref,
@@ -35,7 +35,7 @@ pub struct PullRequest {
     pub comments_url: String,
     pub statuses_url: String,
 }
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum PullRequestState {
     #[serde(rename = "open")]
     Open,
@@ -43,7 +43,7 @@ pub enum PullRequestState {
     Closed,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Ref {
     pub label: String,
     #[serde(rename = "ref")]
