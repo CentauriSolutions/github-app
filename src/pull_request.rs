@@ -34,6 +34,7 @@ pub struct PullRequest {
     pub review_comment_url: String,
     pub comments_url: String,
     pub statuses_url: String,
+    pub installation_id: Option<usize>,
 }
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum PullRequestState {

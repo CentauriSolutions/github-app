@@ -80,6 +80,7 @@ pub struct Repo {
     pub watchers: usize,
     pub default_branch: String,
     installation_token: Option<InstallationToken>,
+    pub installation_id: Option<usize>,
 }
 
 impl Repo {
