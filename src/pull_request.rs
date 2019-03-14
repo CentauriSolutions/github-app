@@ -73,9 +73,7 @@ impl PullRequest {
 
     pub fn set_status(&self, installation: &AppInstallation, status: &Status) -> Result<(), Error> {
         let json = serde_json::to_string(status)?;
-        println!("Setting status to {:#?}", json);
         let body = installation.post(&self.statuses_url, Some(json.as_bytes()))?;
-        println!("Body: {}", String::from_utf8_lossy(&body));
         Ok(())
     }
 }
