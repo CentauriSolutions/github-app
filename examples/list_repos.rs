@@ -17,7 +17,7 @@ fn main() -> Result<(), github_app::Error> {
 fn list_repos(path: &str, installation_id: usize) -> Result<(), github_app::Error> {
     //Vec<String> {
     let path: PathBuf = path.into();
-    let app = github_app::App::from_private_key_file(&path)?;
+    let app = github_app::App::from_private_key_file(&path, "26261")?;
     let installation = app.installation(installation_id)?;
     println!("{:?}", installation.repos());
     Ok(())

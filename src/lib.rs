@@ -29,11 +29,3 @@ pub use error::GithubError;
 pub use json_web_token::JsonWebToken;
 
 const USER_AGENT: &'static str = "Github App - Rust";
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}

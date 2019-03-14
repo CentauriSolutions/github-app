@@ -17,7 +17,7 @@ fn main() -> Result<(), github_app::Error> {
 fn list_prs(path: &str) -> Result<(), github_app::Error> {
     //Vec<String> {
     let path: PathBuf = path.into();
-    let app = github_app::App::from_private_key_file(&path)?;
+    let app = github_app::App::from_private_key_file(&path, "26261")?;
     let installations = app.installations()?;
     let mut pull_requests = vec![];
     for installation in installations {

@@ -22,7 +22,7 @@ fn list_status(
     pull_request_id: &str,
 ) -> Result<(), github_app::Error> {
     let path: PathBuf = path.into();
-    let app = github_app::App::from_private_key_file(&path)?;
+    let app = github_app::App::from_private_key_file(&path, "26261")?;
     let installation = app.installation(installation_id)?;
     // let repos = installation.repos()?;
     let pr = installation.pull_request(pull_request_id)?;

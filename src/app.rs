@@ -19,15 +19,15 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(private_key: Vec<u8>) -> Result<App, Error> {
+    pub fn new<T: Into<String>>(private_key: Vec<u8>, app_id: T) -> Result<App, Error> {
         Ok(App {
-            json_web_token: JsonWebToken::new(private_key)?,
+            json_web_token: JsonWebToken::new(private_key, app_id)?,
         })
     }
 
-    pub fn from_private_key_file(path: &PathBuf) -> Result<App, Error> {
+    pub fn from_private_key_file<T: Into<String>>(path: &PathBuf, app_id: T) -> Result<App, Error> {
         Ok(App {
-            json_web_token: JsonWebToken::from_private_key_file(path)?,
+            json_web_token: JsonWebToken::from_private_key_file(path, app_id)?,
         })
     }
 
@@ -85,6 +85,7 @@ impl AppInstallation {
                 None => None,
             }
         };
+        debug!("Checking if App Installation token is expired");
         let token = match t {
             Some(token) => {
                 if token.expires_at >= Utc::now() {
@@ -99,14 +100,17 @@ impl AppInstallation {
     }
 
     fn refresh_token(&self) -> Result<InstallationToken, Error> {
+        info!("Renewing App Installation token for {}", self.id);
         let token: String = self.app.json_web_token.token()?;
         let data = post(
             &self.access_tokens_url,
             vec![format!("Authorization: Bearer {}", token)], None
         )?;
         let token: InstallationToken = serde_json::from_slice(&data)?;
+        trace!("Updated App Installation token for {}", self.id);
         let mut t = self.installation_token.write().unwrap();
         *t = Some(token.clone());
+        trace!("Updated stored token");
         Ok(token)
     }
 
