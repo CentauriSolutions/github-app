@@ -17,14 +17,12 @@ fn main() -> Result<(), github_app::Error> {
 fn list_prs(path: &str) -> Result<(), github_app::Error> {
     //Vec<String> {
     let path: PathBuf = path.into();
-    let app = github_app::GithubApp::from_private_key_file(&path)?;
-    let installations =  app.list_installations()?;
+    let app = github_app::App::from_private_key_file(&path)?;
+    let installations = app.installations()?;
     let mut pull_requests = vec![];
-    for installation in  installations {
-        match app.list_repos(installation.id) {
-            Ok(repos) => {
-                fetch_repos(repos, &mut pull_requests)
-            },
+    for installation in installations {
+        match installation.repos() {
+            Ok(repos) => fetch_repos(&installation, repos, &mut pull_requests),
             Err(e) => {
                 println!("Had an error fetching repos: {:?}", e);
             }
@@ -32,16 +30,20 @@ fn list_prs(path: &str) -> Result<(), github_app::Error> {
     }
     println!("Pull Requests:");
     for pr in pull_requests {
-        println!("\t{:?}", pr);
+        // println!("\t{:?}", pr);
+        println!("\t{} - '{}' by {}", pr.url, pr.title, pr.user.login);
     }
     Ok(())
 }
 
-fn fetch_repos(repos: Vec<github_app::Repo>, pull_requests: &mut Vec<github_app::PullRequest>) {
+fn fetch_repos(
+    installation: &github_app::AppInstallation,
+    repos: Vec<github_app::Repo>,
+    pull_requests: &mut Vec<github_app::PullRequest>,
+) {
     for repo in repos {
-        match repo.pull_requests(Some(github_app::PullRequestState::Open)) {
+        match repo.pull_requests(&installation, Some(github_app::PullRequestState::Open)) {
             Ok(mut pulls) => {
-                println!("Have pulls: {:?}", pulls);
                 pull_requests.append(&mut pulls);
             }
             Err(e) => {

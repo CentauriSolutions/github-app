@@ -23,5 +23,5 @@ pub struct Installation {
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Permissions {
     pub pull_requests: String, // Enum
-    pub metadata: String, // Enum
+    pub metadata: String,      // Enum
 }

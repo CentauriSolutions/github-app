@@ -12,3 +12,4 @@ serde_derive = "1.0.89"
 failure = "0.1.5"
 curl = "0.4.19"
 chrono = { version = "0.4", features = ["serde"] }
+log = "0.4.6"

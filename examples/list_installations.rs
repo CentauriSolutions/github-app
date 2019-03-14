@@ -17,7 +17,7 @@ fn main() -> Result<(), github_app::Error> {
 fn list_installations(path: &str) -> Result<(), github_app::Error> {
     //Vec<String> {
     let path: PathBuf = path.into();
-    let app = github_app::GithubApp::from_private_key_file(&path)?;
-    println!("{:?}", app.list_installations());
+    let app = github_app::App::from_private_key_file(&path)?;
+    println!("{:?}", app.installations());
     Ok(())
 }

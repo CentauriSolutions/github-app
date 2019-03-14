@@ -1,11 +1,10 @@
-use std::io::prelude::*;
 use std::fs::File;
+use std::io::prelude::*;
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
 use std::time;
 
 use failure::Error;
-
 
 use jsonwebtoken::{encode, Algorithm, Header};
 
@@ -22,7 +21,6 @@ pub struct JsonWebToken {
     token: Arc<RwLock<String>>,
     private_key: Vec<u8>,
 }
-
 
 impl JsonWebToken {
     pub fn new(private_key: Vec<u8>) -> Result<JsonWebToken, Error> {
@@ -44,7 +42,7 @@ impl JsonWebToken {
                 return true;
             }
         };
-         *lock < time::SystemTime::now()
+        *lock < time::SystemTime::now()
     }
 
     pub fn token(&self) -> Result<String, Error> {
@@ -58,7 +56,10 @@ impl JsonWebToken {
         let (token, expires_time) = JsonWebToken::generate_token(&self.private_key)?;
         *self.token.write().expect("Couldn't lock token for writing") = token;
         // self.expires = RwLock::new(expires_time);
-        *self.expires.write().expect("Couldn't lock expires for writing") = expires_time;
+        *self
+            .expires
+            .write()
+            .expect("Couldn't lock expires for writing") = expires_time;
         Ok(())
     }
 

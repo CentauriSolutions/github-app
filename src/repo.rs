@@ -1,7 +1,6 @@
-use crate::get;
+use crate::app::AppInstallation;
 
-use crate::{Account, InstallationToken, PullRequest, PullRequestState};
-use crate::error::GithubError;
+use crate::{Account, PullRequest, PullRequestState};
 use chrono::prelude::*;
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
@@ -53,9 +52,9 @@ pub struct Repo {
     pub labels_url: String,
     pub releases_url: String,
     pub deployments_url: String,
-    pub created_at:  DateTime<Utc>,
-    pub updated_at:  DateTime<Utc>,
-    pub pushed_at:  DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub pushed_at: DateTime<Utc>,
     pub git_url: String,
     pub ssh_url: String,
     pub clone_url: String,
@@ -79,16 +78,15 @@ pub struct Repo {
     pub open_issues: usize,
     pub watchers: usize,
     pub default_branch: String,
-    installation_token: Option<InstallationToken>,
     pub installation_id: Option<usize>,
 }
 
 impl Repo {
-    pub fn pull_requests(&self, state: Option<PullRequestState>) -> Result<Vec<PullRequest>, failure::Error> {
-        let token = match self.installation_token {
-            Some(ref s) => s,
-            None => return Err(GithubError::MissingToken)?,
-        };
+    pub fn pull_requests(
+        &self,
+        installation: &AppInstallation,
+        state: Option<PullRequestState>,
+    ) -> Result<Vec<PullRequest>, failure::Error> {
         let mut url = format!("{}?", self.pulls_url.replace("{/number}", ""));
         if let Some(state) = state {
             match state {
@@ -96,14 +94,17 @@ impl Repo {
                 PullRequestState::Closed => url = format!("{}&state=closed", url),
             }
         } else {
-            url = format!("{}&state=all", url);
-        }
-        let data = get(url, vec![format!("Authorization: token {}", token.token)])?;
-        Ok(serde_json::from_slice(&data)?)
-    }
-
-    pub fn set_token(&mut self, token: InstallationToken) {
-        self.installation_token = Some(token);
+            url = format!("{}&state=all", url)
+        };
+        Ok(
+            serde_json::from_slice::<Vec<PullRequest>>(&installation.get(url)?)?
+                .into_iter()
+                .map(|mut pr| {
+                    pr.installation_id = Some(installation.id);
+                    pr
+                })
+                .collect(),
+        )
     }
 }
 

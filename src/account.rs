@@ -20,3 +20,18 @@ pub struct Account {
     pub user_type: String,
     pub site_admin: bool,
 }
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct Team {
+    pub id: usize,
+    pub node_id: String,
+    pub url: String,
+    pub name: String,
+    pub slug: String,
+    pub description: String,
+    pub privacy: String,
+    pub permission: String,
+    pub members_url: String,
+    pub repositories_url: String,
+    pub parent: Option<Box<Team>>,
+}
