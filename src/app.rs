@@ -85,16 +85,21 @@ impl AppInstallation {
                 None => None,
             }
         };
-        debug!("Checking if App Installation token is expired");
+        debug!("Checking if App Installation token is available");
         let token = match t {
             Some(token) => {
+                debug!("Token expires at: {}", token.expires_at);
                 if token.expires_at >= Utc::now() {
+                    debug!("Token expired!");
                     self.refresh_token()?
                 } else {
                     token
                 }
             }
-            None => self.refresh_token()?,
+            None => {
+                debug!("No token present, getting one!");
+                self.refresh_token()?
+            },
         };
         Ok(token.token)
     }
