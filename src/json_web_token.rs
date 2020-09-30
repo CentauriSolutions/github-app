@@ -54,7 +54,7 @@ impl JsonWebToken {
 
     pub fn token(&self) -> Result<String, Error> {
         if self.is_expired() {
-            info!("Renewing Application JSON Web Token");
+            debug!("Renewing Application JSON Web Token");
             self.renew_token()?;
             trace!("Successfully renewed JWT");
         }
