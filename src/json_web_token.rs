@@ -6,7 +6,7 @@ use std::sync::{Arc, RwLock};
 use chrono::prelude::*;
 use failure::Error;
 
-use jsonwebtoken::{encode, Algorithm, Header};
+use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims<'a> {
@@ -24,7 +24,10 @@ pub struct JsonWebToken {
 }
 
 impl JsonWebToken {
-    pub fn new<T: Into<String>>(private_key: Vec<u8>, application_id: T) -> Result<JsonWebToken, Error> {
+    pub fn new<T: Into<String>>(
+        private_key: Vec<u8>,
+        application_id: T,
+    ) -> Result<JsonWebToken, Error> {
         let application_id = application_id.into();
         let (token, expires_time) = JsonWebToken::generate_token(&private_key, &application_id)?;
         let jwt = JsonWebToken {
@@ -59,7 +62,8 @@ impl JsonWebToken {
     }
 
     fn renew_token(&self) -> Result<(), Error> {
-        let (token, expires_time) = JsonWebToken::generate_token(&self.private_key, &self.application_id)?;
+        let (token, expires_time) =
+            JsonWebToken::generate_token(&self.private_key, &self.application_id)?;
         *self.token.write().expect("Couldn't lock token for writing") = token;
         // self.expires = RwLock::new(expires_time);
         *self
@@ -69,7 +73,10 @@ impl JsonWebToken {
         Ok(())
     }
 
-    fn generate_token(private_key: &Vec<u8>, application_id: &str) -> Result<(String, DateTime<Utc>), Error> {
+    fn generate_token(
+        private_key: &Vec<u8>,
+        application_id: &str,
+    ) -> Result<(String, DateTime<Utc>), Error> {
         let start = Utc::now();
         let since_the_epoch = start.timestamp();
         let exp = since_the_epoch + (10 * 60);
@@ -82,11 +89,20 @@ impl JsonWebToken {
         debug!("This JWT expires at {}", expires_time);
         // my_claims is a struct that implements Serialize
         // This will create a JWT using RS256 as algorithm
-        let token = encode(&Header::new(Algorithm::RS256), &my_claims, &private_key)?;
+
+        let token = encode(
+            &Header::new(Algorithm::RS256),
+            &my_claims,
+            &EncodingKey::from_rsa_pem(&private_key)?,
+        )?; // &private_key)?;
+        debug!("Built token: {:#?}", token);
         Ok((token, expires_time))
     }
 
-    pub fn from_private_key_file<T: Into<String>>(path: &PathBuf, application_id: T) -> Result<JsonWebToken, Error> {
+    pub fn from_private_key_file<T: Into<String>>(
+        path: &PathBuf,
+        application_id: T,
+    ) -> Result<JsonWebToken, Error> {
         let mut file = File::open(path)?;
         let mut contents = vec![];
         file.read_to_end(&mut contents)?;

@@ -9,9 +9,9 @@ use curl::easy::{Easy, List};
 use failure::Error;
 
 use crate::Installation;
+use crate::JsonWebToken;
 use crate::PullRequest;
 use crate::{Repo, RepoResult};
-use crate::JsonWebToken;
 
 #[derive(Clone, Debug)]
 pub struct App {
@@ -33,9 +33,7 @@ impl App {
 
     pub fn installations(&self) -> Result<Vec<AppInstallation>, Error> {
         let token: String = self.json_web_token.token()?;
-        let data = get_with_token(
-            "https://api.github.com/app/installations", token,
-        )?;
+        let data = get_with_token("https://api.github.com/app/installations", token)?;
         let installations: Vec<Installation> = serde_json::from_slice(&data)?;
         Ok(installations
             .into_iter()
@@ -53,7 +51,8 @@ impl App {
             format!(
                 "https://api.github.com/app/installations/{}",
                 installation_id
-            ), token,
+            ),
+            token,
         )?;
         let installation: Installation = serde_json::from_slice(&data)?;
         Ok(AppInstallation {
@@ -99,7 +98,7 @@ impl AppInstallation {
             None => {
                 debug!("No token present, getting one!");
                 self.refresh_token()?
-            },
+            }
         };
         Ok(token.token)
     }
@@ -109,7 +108,8 @@ impl AppInstallation {
         let token: String = self.app.json_web_token.token()?;
         let data = post(
             &self.access_tokens_url,
-            vec![format!("Authorization: Bearer {}", token)], None
+            vec![format!("Authorization: Bearer {}", token)],
+            None,
         )?;
         let token: InstallationToken = serde_json::from_slice(&data)?;
         trace!("Updated App Installation token for {}", self.id);
@@ -146,11 +146,17 @@ impl AppInstallation {
         )
     }
 
-    pub(crate) fn post<T1: AsRef<str>>(&self, url: T1, body: Option<&[u8]>) -> Result<Vec<u8>, Error> {
+    pub(crate) fn post<T1: AsRef<str>>(
+        &self,
+        url: T1,
+        body: Option<&[u8]>,
+    ) -> Result<Vec<u8>, Error> {
         let installation_token = self.installation_token()?;
-        post(url,
-             vec![format!("Authorization: token {}", installation_token)],
-             body)
+        post(
+            url,
+            vec![format!("Authorization: token {}", installation_token)],
+            body,
+        )
     }
 }
 
@@ -185,8 +191,11 @@ fn get_with_token<T1: AsRef<str>, T2: AsRef<str>>(url: T1, token: T2) -> Result<
     )
 }
 
-fn post<T1: AsRef<str>, T2: AsRef<str>>(url: T1, headers: Vec<T2>,
-    body: Option<&[u8]>) -> Result<Vec<u8>, Error> {
+fn post<T1: AsRef<str>, T2: AsRef<str>>(
+    url: T1,
+    headers: Vec<T2>,
+    body: Option<&[u8]>,
+) -> Result<Vec<u8>, Error> {
     easy_run(url, headers, Method::Post, body)
 }
 
@@ -194,7 +203,7 @@ fn easy_run<T1: AsRef<str>, T2: AsRef<str>>(
     url: T1,
     headers: Vec<T2>,
     method: Method,
-    body: Option<&[u8]>
+    body: Option<&[u8]>,
 ) -> Result<Vec<u8>, Error> {
     debug!("About to {:?} {}", method, url.as_ref());
     let dst = Arc::new(RwLock::new(Vec::with_capacity(8192)));
@@ -220,9 +229,10 @@ fn easy_run<T1: AsRef<str>, T2: AsRef<str>>(
         Method::Post => easy.post(true)?,
     }
     if let Some(data) = body {
-         easy.post_fields_copy(data)?;
+        easy.post_fields_copy(data)?;
     }
     easy.perform()?;
     let data = (*dst.read().unwrap()).to_vec();
+    debug!("Got {:#?}", String::from_utf8_lossy(&data));
     Ok(data)
 }
