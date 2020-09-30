@@ -233,6 +233,6 @@ fn easy_run<T1: AsRef<str>, T2: AsRef<str>>(
     }
     easy.perform()?;
     let data = (*dst.read().unwrap()).to_vec();
-    debug!("Got {:#?}", String::from_utf8_lossy(&data));
+    trace!("Got {:#?}", String::from_utf8_lossy(&data));
     Ok(data)
 }
